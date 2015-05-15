@@ -1,0 +1,5 @@
+Sometimes you do everything right in your code but other people’s code fails you. With unicode issues this happens more often than we want. A glaring example of this is when you get values back from a function that aren’t consistently unicode string or byte str.
+
+An example from the python standard library is gettext. The gettext functions are used to help translate messages that you display to users in the users’ native languages. Since most languages contain letters outside of the ASCII range, the values that are returned contain unicode characters. gettext provides you with ugettext() and ungettext() to return these translations as unicode strings and gettext(), ngettext(), lgettext(), and lngettext() to return them as encoded byte str. Unfortunately, even though they’re documented to return only one type of string or the other, the implementation has corner cases where the wrong type can be returned.
+
+This means that even if you separate your unicode string and byte str correctly before you pass your strings to a gettext function, afterwards, you might have to check that you have the right sort of string type again.
