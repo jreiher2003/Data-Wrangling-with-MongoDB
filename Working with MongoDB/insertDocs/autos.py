@@ -134,4 +134,31 @@ def years(row, start_field, end_field):
 	return all_years
 
 def process_file(input_file):
-	pass
+	input_data = csv.DictReader(open(input_file))
+	autos = []
+	skip_lines(input_data,3)
+	for row in input_data:
+		auto = {}
+		model_years = {}
+		dimensions = {}
+		for field, val in row.iteritems():
+			if field not in fields or empty_val(val):
+				continue
+			if field in ["bodyStyle_label", "class_label", "layout_label"]:
+				val = val.lower()
+			val = strip_automobile(val)
+			val = strip_city(val)
+			val = val.strip()
+			val = parse_array(val)
+			if field in ["length", "width", "height", "weight", "wheelbase"]:
+				clean_dimension(dimensions, field_map[field], val)
+			elif field in ["productionStartYear", "productionEndYear"]:
+				clean_year(production_years, field_map[field], val)
+			else:
+				auto[field_map[field]] = val
+		if dimensions:
+			auto['dimensions'] = dimensions
+		auto['modelYears'] = years(row, 'modelStartYear', 'modelEndYear')
+		auto['productionYears'] = years(row, 'productionStartYear', 'productionEndYear')
+		auto.append(auto)
+	return autos
