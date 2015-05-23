@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 import xml.etree.cElementTree as ET
 from collections import defaultdict
-# import bzip2
 import re
+import bz2
 
-osm_file = open("chicago.osm.bz2", "r")
+
+osm_file = bz2.BZ2File("chicago.osm.bz2", "r")
+
 
 street_type_re = re.compile(r'\S+\.?$', re.IGNORECASE)
 street_types = defaultdict(int)
@@ -28,10 +30,16 @@ def is_street_name(elem):
     return (elem.tag == "tag") and (elem.attrib['k'] == "addr:street")
 
 def audit():
-    for event, elem in ET.iterparse(osm_file):
+    # for line in osm_file:
+    context = iter(ET.iterparse(osm_file))
+    _, root = next(context)
+    for event, elem in context:
         if is_street_name(elem):
-            audit_street_type(street_types, elem.attrib['v'])   
+            
+            elem.clear()
+            audit_street_type(street_types, elem.attrib['v'])  
     print_sorted_dict(street_types) 
+    # root.clear() 
 
 if __name__ == '__main__':
     audit()
